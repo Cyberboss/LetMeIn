@@ -56,10 +56,11 @@ jobs:
         run: |
           FILE_PATH=$(find . -maxdepth 3 -name "*.csproj" -print -quit)
           FILE_NAME=$(basename "$FILE_PATH")
+          FILE_NAME_NO_EXT="${FILE_NAME%.*}"
 
-          echo "Found project name: $FILE_PATH"
+          echo "Found project name: $FILE_NAME_NO_EXT"
 
-          echo "filename=$FILE_NAME" >> "$GITHUB_OUTPUT"
+          echo "filename=$FILE_NAME_NO_EXT" >> "$GITHUB_OUTPUT"
 
       - name: Extract SemVer from Output
         id: get_version
