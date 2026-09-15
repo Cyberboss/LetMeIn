@@ -54,7 +54,7 @@ jobs:
         id: find_file
         shell: bash
         run: |
-          FILE_PATH=$(find . -maxdepth 2 -name "*.csproj" -print -quit)
+          FILE_PATH=$(find . -maxdepth 3 -name "*.csproj" -print -quit)
           FILE_NAME=$(basename "$FILE_PATH")
 
           echo "Found project name: $FILE_PATH"
