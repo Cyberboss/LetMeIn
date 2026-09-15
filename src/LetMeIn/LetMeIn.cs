@@ -15,7 +15,7 @@ namespace LetMeIn
 	{
 		internal const string NameConstant = nameof(LetMeIn);
 
-		internal const string VersionConstant = "1.0.0";
+		internal const string VersionConstant = "1.0.1";
 
 		public override string Name => NameConstant;
 
