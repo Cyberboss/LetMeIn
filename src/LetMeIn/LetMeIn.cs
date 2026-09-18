@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using FrooxEngine;
@@ -15,7 +16,7 @@ namespace LetMeIn
 	{
 		internal const string NameConstant = nameof(LetMeIn);
 
-		internal const string VersionConstant = "1.0.1";
+		internal const string VersionConstant = "1.1.0";
 
 		public override string Name => NameConstant;
 
@@ -75,9 +76,34 @@ namespace LetMeIn
 
 				Msg($"Requesting invite for auto join session ID: {sessionID}");
 
-				var userMessages = cloud.Messages.GetUserMessages(userId);
-				var message = userMessages.CreateInviteRequest();
-				_ = userMessages.SendMessage(message);
+				var messages = cloud.Messages;
+				var userMessages = messages.GetUserMessages(userId);
+				var inviteRequestMessage = userMessages.CreateInviteRequest();
+				var markMessagesRead = userMessages.UnreadCount == 0;
+				Action<Message> callback = receivedMessage =>
+				{
+					if (receivedMessage.MessageType != SkyFrost.Base.MessageType.SessionInvite)
+						return;
+
+					Msg($"Marking message {receivedMessage.Id} from user {userId} as read as it appears to be an automated session invite.");
+					userMessages.MarkAllRead();
+				};
+
+				async ValueTask AsyncProcess()
+				{
+					if (markMessagesRead)
+						messages.OnMessageReceived += callback;
+
+					await userMessages.SendMessage(inviteRequestMessage);
+
+					if (markMessagesRead)
+					{
+						await Task.Delay(TimeSpan.FromSeconds(5));
+						messages.OnMessageReceived -= callback;
+					}
+				}
+
+				_ = AsyncProcess();
 
 				return true;
 			}
